@@ -1,0 +1,105 @@
+# Hướng dẫn chạy trên Windows
+
+Tài liệu này hướng dẫn build và chạy phiên bản MPI và MPI+OpenMP trên Windows (native).
+Phiên bản CUDA hiện không build trực tiếp trên Windows vì code dùng POSIX headers (unistd.h, fcntl.h) và Makefile kiểu Unix.
+Nếu muốn chạy CUDA, khuyến nghị dùng WSL2 (Ubuntu) hoặc port lại code sang Win32.
+
+## Yêu cầu
+- Windows 10/11 64-bit
+- MSYS2 (MINGW64)
+- MS-MPI Runtime (Windows)
+- Repo đã clone
+
+## Bước 1: Cài MSYS2
+1) Tải installer từ: https://www.msys2.org/
+2) Cài vào đường dẫn ASCII (ví dụ: C:\\msys64)
+3) Mở "MSYS2 MSYS" và cập nhật (MSYS2 là rolling release, cần full system upgrade):
+   - pacman -Syu
+   - khi được yêu cầu, đóng tất cả cửa sổ MSYS2
+   - mở lại "MSYS2 MSYS"
+   - pacman -Su
+4) Mở "MSYS2 MINGW64" (không dùng Git Bash)
+
+## Bước 2: Cài toolchain + MPI cho MSYS2
+Chạy trong "MSYS2 MINGW64":
+
+```
+pacman -S --needed mingw-w64-x86_64-toolchain mingw-w64-x86_64-msmpi make
+```
+Gói `mingw-w64-x86_64-msmpi` cung cấp `mpicc.exe` để build MPI trong MSYS2.
+
+## Bước 3: Cài MS-MPI Runtime (Windows)
+1) Tải bộ cài đặt MS-MPI từ Microsoft:
+   https://learn.microsoft.com/en-us/message-passing-interface/microsoft-mpi
+2) Cài đặt, đảm bảo `mpiexec.exe` nằm trong PATH.
+   Thường ở: C:\\Program Files\\Microsoft MPI\\Bin
+3) Mở lại terminal nếu vừa thêm PATH.
+
+## Bước 4: Build và chạy
+Chạy trong "MSYS2 MINGW64" tại thư mục repo:
+
+```
+cd /e/Master/20251/HighPerformanceComputing/Parallel-Convolution
+
+# MPI
+mpicc -o mpi/mpi_conv.exe mpi/mpi_conv.c
+mpiexec -n 4 mpi/mpi_conv.exe waterfall_grey_1920_2520.raw 1920 2520 50 grey
+
+# MPI + OpenMP
+mpicc -fopenmp -o mpi_omp/mpi_omp_conv.exe mpi_omp/mpi_omp_conv.c
+mpiexec -n 4 mpi_omp/mpi_omp_conv.exe waterfall_grey_1920_2520.raw 1920 2520 50 grey
+```
+
+Ví dụ chạy RGB:
+
+```
+mpiexec -n 4 mpi/mpi_conv.exe waterfall_1920_2520.raw 1920 2520 50 rgb
+```
+
+Kết quả sẽ tạo file: `blur_<tên_ảnh_gốc>` tại thư mục đang chạy.
+
+## Ghi chú về OpenMP
+Số lượng thread có thể điều chỉnh bằng biến môi trường. Ví dụ:
+
+```
+export OMP_NUM_THREADS=4
+```
+
+## Lỗi thường gặp
+- `mpicc: command not found`:
+  - Bạn đang ở Git Bash hoặc MSYS2 MSYS, hãy mở "MSYS2 MINGW64".
+  - Kiểm tra: `which mpicc`.
+- `mpiexec: command not found`:
+  - Chưa cài MS-MPI Runtime hoặc PATH chưa đúng.
+- `Cannot divide to processes`:
+  - Thay đổi `-n` sao cho width và height chia hết cho lưới process.
+  - Ví dụ với 1920x2520, `-n 4` chạy được.
+- `Error Input!`:
+  - Dùng cú pháp: `<exe> <image> <width> <height> <loops> <rgb|grey>`.
+
+## CUDA trên Windows (tùy chọn)
+CUDA code trong thư mục `cuda` dùng header POSIX và Makefile kiểu Unix, nên không build trực tiếp trên Windows native.
+Nếu cần chạy CUDA, nên dùng WSL2 (Ubuntu) hoặc sửa code/Makefile để build bằng MSVC + nvcc.
+
+## Chuyển .raw/.pgm/.ppm sang PNG
+Sau khi dùng `convert_raw.py` để tạo `.pgm` (grey) hoặc `.ppm` (rgb), bạn có thể đổi sang PNG bằng ImageMagick.
+
+1) Cài ImageMagick cho Windows: https://imagemagick.org/
+2) Chạy lệnh:
+
+```
+magick waterfall_grey_1920_2520.pgm waterfall_grey_1920_2520.png
+magick waterfall_1920_2520.ppm waterfall_1920_2520.png
+```
+
+Nếu muốn đổi trực tiếp từ `.raw` sang PNG (không qua PGM/PPM), dùng:
+
+```
+magick -size 1920x2520 -depth 8 gray:waterfall_grey_1920_2520.raw waterfall_grey_1920_2520.png
+magick -size 1920x2520 -depth 8 rgb:waterfall_1920_2520.raw waterfall_1920_2520.png
+```
+
+## Tài liệu tham khảo
+- MSYS2 Updating: https://www.msys2.org/docs/updating/
+- MSYS2 package `mingw-w64-x86_64-msmpi`: https://packages.msys2.org/package/mingw-w64-x86_64-msmpi
+- Microsoft MPI: https://learn.microsoft.com/en-us/message-passing-interface/microsoft-mpi
