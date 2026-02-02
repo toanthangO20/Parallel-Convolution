@@ -13,6 +13,7 @@ void convolute_grey(uint8_t *, uint8_t *, int, int, int, int, float **);
 void convolute_rgb(uint8_t *, uint8_t *, int, int, int, int, float **);
 void Usage(int, char **, char **, int *, int *, int *, color_t *);
 uint8_t *offset(uint8_t *, int, int, int);
+int divide_rows(int, int, int);
 
 
 int main(int argc, char** argv) {
@@ -297,12 +298,12 @@ int main(int argc, char** argv) {
 void convolute(uint8_t *src, uint8_t *dst, int row_from, int row_to, int col_from, int col_to, int width, int height, float** h, color_t imageType) {
 	int i, j;
 	if (imageType == GREY) {
-#pragma omp parallel for shared(src, dst) schedule(static) collapse(3)
+#pragma omp parallel for shared(src, dst) schedule(static) collapse(2)
 		for (i = row_from ; i <= row_to ; i++)
 			for (j = col_from ; j <= col_to ; j++)
 				convolute_grey(src, dst, i, j, width+2, height, h);
 	} else if (imageType == RGB) {
-#pragma omp parallel for shared(src, dst) schedule(static) collapse(3)
+#pragma omp parallel for shared(src, dst) schedule(static) collapse(2)
 		for (i = row_from ; i <= row_to ; i++)
 			for (j = col_from ; j <= col_to ; j++)
 				convolute_rgb(src, dst, i, j*3, width*3+6, height, h);
