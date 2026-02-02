@@ -25,6 +25,34 @@ $$
 
 Giá trị tích lũy tính bằng `float` và **ép về `uint8_t`** (trong code là cast trực tiếp).
 
+\begin{figure}[h]
+  \centering
+  \begin{minipage}{0.49\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/grey_0.png}
+  \end{minipage}
+  \begin{minipage}{0.49\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/grey_20.png}
+  \end{minipage}
+  \caption{Grey: left 0 iterations (original), right 20 iterations (to be inserted).}
+  \label{fig:grey_0_20}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.92\linewidth]{Figures/grey_40_60.png}
+  \caption{Grey: left 40 iterations, right 60 iterations.}
+  \label{fig:grey_40_60}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.92\linewidth]{Figures/rgb_0_20.png}
+  \caption{RGB: left 0 iterations (original), right 20 iterations.}
+  \label{fig:rgb_0_20}
+\end{figure}
+
 ### 2.2 RGB
 Áp dụng convolution **độc lập trên từng kênh** $c\in\{R,G,B\}$:
 

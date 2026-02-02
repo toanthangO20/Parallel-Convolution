@@ -82,6 +82,37 @@ bash scripts/benchmark.sh 5 mpiexec -n 4 ./mpi/mpi_conv waterfall_grey_1920_2520
 bash scripts/benchmark.sh 5 env OMP_NUM_THREADS=4 mpiexec -n 4 ./mpi_omp/mpi_omp_conv waterfall_grey_1920_2520.raw 1920 2520 50 grey
 ```
 
+## Tạo hình Figure 1 (grey 0 vs 20 iterations)
+Script Python: `tools/make_fig1_grey_0_20.py` (cần Pillow).
+
+1) Cài Pillow:
+```
+py -m pip install -r requirements.txt
+```
+
+2) Chạy trong PowerShell (khuyên dùng):
+```
+& "C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe" tools\make_fig1_grey_0_20.py --input waterfall_grey_1920_2520.raw --width 1920 --height 2520 --exe .\seq\seq_conv.exe --loops 20 --outdir figures
+```
+
+Script sẽ tạo:
+- `figures/grey_0.png`
+- `figures/grey_20.png`
+- `figures/grey_0_20.png` (ảnh ghép tùy chọn)
+
+## Tạo hình RGB (40 vs 60 iterations)
+Script Python: `tools/make_fig4_rgb_40_60.py` (cần Pillow).
+
+Ví dụ chạy trong PowerShell:
+```
+& "C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe" tools\make_fig4_rgb_40_60.py --input waterfall_1920_2520.raw --width 1920 --height 2520 --exe .\seq\seq_conv.exe --loops 40 60 --outdir Figures
+```
+
+Script sẽ tạo:
+- `Figures/rgb_40.png`
+- `Figures/rgb_60.png`
+- `Figures/rgb_40_60.png`
+
 ## Ghi chú về OpenMP
 Số lượng thread có thể điều chỉnh bằng biến môi trường. Ví dụ:
 
