@@ -9,8 +9,8 @@
 typedef enum {RGB, GREY} color_t;
 
 void convolute(uint8_t *, uint8_t *, int, int, int, int, int, int, float**, color_t);
-void convolute_grey(uint8_t *, uint8_t *, int, int, int, int, float **);
-void convolute_rgb(uint8_t *, uint8_t *, int, int, int, int, float **);
+static inline void convolute_grey(uint8_t *, uint8_t *, int, int, int, int, float **);
+static inline void convolute_rgb(uint8_t *, uint8_t *, int, int, int, int, float **);
 void Usage(int, char **, char **, int *, int *, int *, color_t *);
 uint8_t *offset(uint8_t *, int, int, int);
 int divide_rows(int, int, int);
@@ -310,27 +310,42 @@ void convolute(uint8_t *src, uint8_t *dst, int row_from, int row_to, int col_fro
 	} 
 }
 
-void convolute_grey(uint8_t *src, uint8_t *dst, int x, int y, int width, int height, float** h) {
-	int i, j, k, l;
-	float val = 0;
-	for (i = x-1, k = 0 ; i <= x+1 ; i++, k++)
-		for (j = y-1, l = 0 ; j <= y+1 ; j++, l++)
-			val += src[width * i + j] * h[k][l];
-	dst[width * x + y] = val;
+static inline void convolute_grey(uint8_t *src, uint8_t *dst, int x, int y, int width, int height, float** h) {
+	const uint8_t *row0 = src + (x - 1) * width + (y - 1);
+	const uint8_t *row1 = row0 + width;
+	const uint8_t *row2 = row1 + width;
+	const float *h0 = h[0];
+	const float *h1 = h[1];
+	const float *h2 = h[2];
+	float val =
+		row0[0] * h0[0] + row0[1] * h0[1] + row0[2] * h0[2] +
+		row1[0] * h1[0] + row1[1] * h1[1] + row1[2] * h1[2] +
+		row2[0] * h2[0] + row2[1] * h2[1] + row2[2] * h2[2];
+	dst[width * x + y] = (uint8_t)val;
 }
 
-void convolute_rgb(uint8_t *src, uint8_t *dst, int x, int y, int width, int height, float** h) {
-	int i, j, k, l;
-	float redval = 0, greenval = 0, blueval = 0;
-	for (i = x-1, k = 0 ; i <= x+1 ; i++, k++)
-		for (j = y-3, l = 0 ; j <= y+3 ; j+=3, l++){
-			redval += src[width * i + j]* h[k][l];
-			greenval += src[width * i + j+1] * h[k][l];
-			blueval += src[width * i + j+2] * h[k][l];
-		}
-	dst[width * x + y] = redval;
-	dst[width * x + y+1] = greenval;
-	dst[width * x + y+2] = blueval;
+static inline void convolute_rgb(uint8_t *src, uint8_t *dst, int x, int y, int width, int height, float** h) {
+	const uint8_t *row0 = src + (x - 1) * width + (y - 3);
+	const uint8_t *row1 = row0 + width;
+	const uint8_t *row2 = row1 + width;
+	const float *h0 = h[0];
+	const float *h1 = h[1];
+	const float *h2 = h[2];
+	float redval =
+		row0[0] * h0[0] + row0[3] * h0[1] + row0[6] * h0[2] +
+		row1[0] * h1[0] + row1[3] * h1[1] + row1[6] * h1[2] +
+		row2[0] * h2[0] + row2[3] * h2[1] + row2[6] * h2[2];
+	float greenval =
+		row0[1] * h0[0] + row0[4] * h0[1] + row0[7] * h0[2] +
+		row1[1] * h1[0] + row1[4] * h1[1] + row1[7] * h1[2] +
+		row2[1] * h2[0] + row2[4] * h2[1] + row2[7] * h2[2];
+	float blueval =
+		row0[2] * h0[0] + row0[5] * h0[1] + row0[8] * h0[2] +
+		row1[2] * h1[0] + row1[5] * h1[1] + row1[8] * h1[2] +
+		row2[2] * h2[0] + row2[5] * h2[1] + row2[8] * h2[2];
+	dst[width * x + y] = (uint8_t)redval;
+	dst[width * x + y+1] = (uint8_t)greenval;
+	dst[width * x + y+2] = (uint8_t)blueval;
 }
 
 /* Get pointer to internal array position */
