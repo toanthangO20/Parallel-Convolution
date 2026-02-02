@@ -48,21 +48,39 @@ Chạy trong "MSYS2 MINGW64" tại thư mục repo:
 cd /e/Master/20251/HighPerformanceComputing/Parallel-Convolution
 
 # MPI
-mpicc -o mpi/mpi_conv.exe mpi/mpi_conv.c
-mpiexec -n 4 mpi/mpi_conv.exe waterfall_grey_1920_2520.raw 1920 2520 50 grey
+mpicc -O3 -o mpi/mpi_conv mpi/mpi_conv.c
+mpiexec -n 4 ./mpi/mpi_conv waterfall_grey_1920_2520.raw 1920 2520 50 grey
 
 # MPI + OpenMP
-mpicc -fopenmp -o mpi_omp/mpi_omp_conv.exe mpi_omp/mpi_omp_conv.c
-mpiexec -n 4 mpi_omp/mpi_omp_conv.exe waterfall_grey_1920_2520.raw 1920 2520 50 grey
+mpicc -O3 -fopenmp -o mpi_omp/mpi_omp_conv mpi_omp/mpi_omp_conv.c
+OMP_NUM_THREADS=4 mpiexec -n 4 ./mpi_omp/mpi_omp_conv waterfall_grey_1920_2520.raw 1920 2520 50 grey
+ 
+# Sequential
+gcc -O2 -o seq/seq_conv seq/seq_conv.c
+./mpi/seq_conv waterfall_grey_1920_2520.raw 1920 2520 50 grey
 ```
 
 Ví dụ chạy RGB:
 
 ```
-mpiexec -n 4 mpi/mpi_conv.exe waterfall_1920_2520.raw 1920 2520 50 rgb
+mpiexec -n 4 ./mpi/mpi_conv waterfall_1920_2520.raw 1920 2520 50 rgb
 ```
 
 Kết quả sẽ tạo file: `blur_<tên_ảnh_gốc>` tại thư mục đang chạy.
+
+## Benchmark (chạy nhiều lần, lấy trung bình)
+Script `scripts/benchmark.sh` chạy lệnh nhiều lần và tính trung bình thời gian (chương trình in ra thời gian ở dòng cuối).
+
+```
+# Sequential
+bash scripts/benchmark.sh 5 ./seq/seq_conv waterfall_grey_1920_2520.raw 1920 2520 50 grey
+
+# MPI
+bash scripts/benchmark.sh 5 mpiexec -n 4 ./mpi/mpi_conv waterfall_grey_1920_2520.raw 1920 2520 50 grey
+
+# MPI + OpenMP (dùng env để set biến môi trường)
+bash scripts/benchmark.sh 5 env OMP_NUM_THREADS=4 mpiexec -n 4 ./mpi_omp/mpi_omp_conv waterfall_grey_1920_2520.raw 1920 2520 50 grey
+```
 
 ## Ghi chú về OpenMP
 Số lượng thread có thể điều chỉnh bằng biến môi trường. Ví dụ:
