@@ -82,6 +82,32 @@ bash scripts/benchmark.sh 5 mpiexec -n 4 ./mpi/mpi_conv waterfall_grey_1920_2520
 bash scripts/benchmark.sh 5 env OMP_NUM_THREADS=4 mpiexec -n 4 ./mpi_omp/mpi_omp_conv waterfall_grey_1920_2520.raw 1920 2520 50 grey
 ```
 
+## Benchmark Table 1 (MPI runtimes, loops=20)
+Script: `benchmark_table1_mpi.py` tự tạo dữ liệu nhị phân trong `data/`, chạy tất cả case và in LaTeX table ra stdout.
+
+Chạy trong "MSYS2 MINGW64":
+
+```
+cd /c/Users/Administrator/Downloads/Parallel-Convolution
+
+# build MPI
+mpicc -O3 -o mpi/mpi_conv mpi/mpi_conv.c
+
+# chạy benchmark
+python benchmark_table1_mpi.py --exe ./mpi/mpi_conv --mpiexec mpiexec
+```
+
+Nếu MSYS2 không có python, gọi python Windows từ MSYS2:
+
+```
+/c/Users/Administrator/AppData/Local/Programs/Python/Python312/python.exe \
+  benchmark_table1_mpi.py --exe ./mpi/mpi_conv --mpiexec mpiexec
+```
+
+Kết quả:
+- CSV: `table1_mpi_times.csv`
+- Log lỗi (nếu có): `table1_mpi_errors.log`
+
 ## Tạo hình Figure 1 (grey 0 vs 20 iterations)
 Script Python: `tools/make_fig1_grey_0_20.py` (cần Pillow).
 
