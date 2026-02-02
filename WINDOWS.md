@@ -1,4 +1,4 @@
-# Hướng dẫn chạy trên Windows
+﻿# Hướng dẫn chạy trên Windows
 
 Tài liệu này hướng dẫn build và chạy phiên bản MPI và MPI+OpenMP trên Windows (native).
 Phiên bản CUDA hiện không build trực tiếp trên Windows vì code dùng POSIX headers (unistd.h, fcntl.h) và Makefile kiểu Unix.
@@ -33,6 +33,12 @@ Gói `mingw-w64-x86_64-msmpi` cung cấp `mpicc.exe` để build MPI trong MSYS2
    https://learn.microsoft.com/en-us/message-passing-interface/microsoft-mpi
 2) Cài đặt, đảm bảo `mpiexec.exe` nằm trong PATH.
    Thường ở: C:\\Program Files\\Microsoft MPI\\Bin
+   Nếu bạn cài MS-MPI ở `C:\MPI\Bin`, trong MSYS2 có thể thêm PATH vĩnh viễn bằng:
+
+   ```
+   echo 'export PATH="/c/MPI/Bin:$PATH"' >> ~/.bashrc
+   ```
+   (đóng/mở lại MSYS2 sau đó)
 3) Mở lại terminal nếu vừa thêm PATH.
 
 ## Bước 4: Build và chạy
