@@ -28,6 +28,8 @@ int main(int argc, char** argv) {
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &num_processes);
     MPI_Comm_rank(MPI_COMM_WORLD, &process_id);
+	omp_set_dynamic(0);
+	omp_set_num_threads(thread_count);
 	/* MPI status */
     MPI_Status status;
 	/* MPI data types */
@@ -44,6 +46,16 @@ int main(int argc, char** argv) {
     MPI_Request recv_south_req;
     MPI_Request recv_west_req;
     MPI_Request recv_east_req;
+    MPI_Request send_nw_req;
+    MPI_Request send_ne_req;
+    MPI_Request send_sw_req;
+    MPI_Request send_se_req;
+    MPI_Request recv_nw_req;
+    MPI_Request recv_ne_req;
+    MPI_Request recv_sw_req;
+    MPI_Request recv_se_req;
+	enum { TAG_N = 10, TAG_S = 11, TAG_W = 12, TAG_E = 13,
+		   TAG_NW = 20, TAG_NE = 21, TAG_SW = 22, TAG_SE = 23 };
 	
 	/* Neighbours */
 	int north = -1;
@@ -157,89 +169,129 @@ int main(int argc, char** argv) {
         west = process_id - 1;
     if (start_col + cols != width)
         east = process_id + 1;
+	int nw = (north != -1 && west != -1) ? process_id - col_div - 1 : -1;
+	int ne = (north != -1 && east != -1) ? process_id - col_div + 1 : -1;
+	int sw = (south != -1 && west != -1) ? process_id + col_div - 1 : -1;
+	int se = (south != -1 && east != -1) ? process_id + col_div + 1 : -1;
 	
 	/* Get time before */
+	MPI_Barrier(MPI_COMM_WORLD);
     timer = MPI_Wtime();
 	/* Convolute "loops" times */
 	for (t = 0 ; t < loops ; t++) {
         /* Send and request borders */
 		if (imageType == GREY) {
 			if (north != -1) {
-				MPI_Isend(offset(src, 1, 1, cols+2), 1, grey_row_type, north, 0, MPI_COMM_WORLD, &send_north_req);
-				MPI_Irecv(offset(src, 0, 1, cols+2), 1, grey_row_type, north, 0, MPI_COMM_WORLD, &recv_north_req);
+				MPI_Isend(offset(src, 1, 1, cols+2), 1, grey_row_type, north, TAG_S, MPI_COMM_WORLD, &send_north_req);
+				MPI_Irecv(offset(src, 0, 1, cols+2), 1, grey_row_type, north, TAG_N, MPI_COMM_WORLD, &recv_north_req);
 			}
 			if (west != -1) {
-				MPI_Isend(offset(src, 1, 1, cols+2), 1, grey_col_type,  west, 0, MPI_COMM_WORLD, &send_west_req);
-				MPI_Irecv(offset(src, 1, 0, cols+2), 1, grey_col_type,  west, 0, MPI_COMM_WORLD, &recv_west_req);
+				MPI_Isend(offset(src, 1, 1, cols+2), 1, grey_col_type,  west, TAG_E, MPI_COMM_WORLD, &send_west_req);
+				MPI_Irecv(offset(src, 1, 0, cols+2), 1, grey_col_type,  west, TAG_W, MPI_COMM_WORLD, &recv_west_req);
 			}
 			if (south != -1) {
-				MPI_Isend(offset(src, rows, 1, cols+2), 1, grey_row_type, south, 0, MPI_COMM_WORLD, &send_south_req);
-				MPI_Irecv(offset(src, rows+1, 1, cols+2), 1, grey_row_type, south, 0, MPI_COMM_WORLD, &recv_south_req);
+				MPI_Isend(offset(src, rows, 1, cols+2), 1, grey_row_type, south, TAG_N, MPI_COMM_WORLD, &send_south_req);
+				MPI_Irecv(offset(src, rows+1, 1, cols+2), 1, grey_row_type, south, TAG_S, MPI_COMM_WORLD, &recv_south_req);
 			}
 			if (east != -1) {
-				MPI_Isend(offset(src, 1, cols, cols+2), 1, grey_col_type,  east, 0, MPI_COMM_WORLD, &send_east_req);
-				MPI_Irecv(offset(src, 1, cols+1, cols+2), 1, grey_col_type,  east, 0, MPI_COMM_WORLD, &recv_east_req);
+				MPI_Isend(offset(src, 1, cols, cols+2), 1, grey_col_type,  east, TAG_W, MPI_COMM_WORLD, &send_east_req);
+				MPI_Irecv(offset(src, 1, cols+1, cols+2), 1, grey_col_type,  east, TAG_E, MPI_COMM_WORLD, &recv_east_req);
+			}
+			if (nw != -1) {
+				MPI_Isend(offset(src, 1, 1, cols+2), 1, MPI_BYTE, nw, TAG_SE, MPI_COMM_WORLD, &send_nw_req);
+				MPI_Irecv(offset(src, 0, 0, cols+2), 1, MPI_BYTE, nw, TAG_NW, MPI_COMM_WORLD, &recv_nw_req);
+			}
+			if (ne != -1) {
+				MPI_Isend(offset(src, 1, cols, cols+2), 1, MPI_BYTE, ne, TAG_SW, MPI_COMM_WORLD, &send_ne_req);
+				MPI_Irecv(offset(src, 0, cols+1, cols+2), 1, MPI_BYTE, ne, TAG_NE, MPI_COMM_WORLD, &recv_ne_req);
+			}
+			if (sw != -1) {
+				MPI_Isend(offset(src, rows, 1, cols+2), 1, MPI_BYTE, sw, TAG_NE, MPI_COMM_WORLD, &send_sw_req);
+				MPI_Irecv(offset(src, rows+1, 0, cols+2), 1, MPI_BYTE, sw, TAG_SW, MPI_COMM_WORLD, &recv_sw_req);
+			}
+			if (se != -1) {
+				MPI_Isend(offset(src, rows, cols, cols+2), 1, MPI_BYTE, se, TAG_NW, MPI_COMM_WORLD, &send_se_req);
+				MPI_Irecv(offset(src, rows+1, cols+1, cols+2), 1, MPI_BYTE, se, TAG_SE, MPI_COMM_WORLD, &recv_se_req);
 			}
 		} else if (imageType == RGB) {
 			if (north != -1) {
-				MPI_Isend(offset(src, 1, 3, 3*cols+6), 1, rgb_row_type, north, 0, MPI_COMM_WORLD, &send_north_req);
-				MPI_Irecv(offset(src, 0, 3, 3*cols+6), 1, rgb_row_type, north, 0, MPI_COMM_WORLD, &recv_north_req);
+				MPI_Isend(offset(src, 1, 3, 3*cols+6), 1, rgb_row_type, north, TAG_S, MPI_COMM_WORLD, &send_north_req);
+				MPI_Irecv(offset(src, 0, 3, 3*cols+6), 1, rgb_row_type, north, TAG_N, MPI_COMM_WORLD, &recv_north_req);
 			}
 			if (west != -1) {
-				MPI_Isend(offset(src, 1, 3, 3*cols+6), 1, rgb_col_type,  west, 0, MPI_COMM_WORLD, &send_west_req);
-				MPI_Irecv(offset(src, 1, 0, 3*cols+6), 1, rgb_col_type,  west, 0, MPI_COMM_WORLD, &recv_west_req);
+				MPI_Isend(offset(src, 1, 3, 3*cols+6), 1, rgb_col_type,  west, TAG_E, MPI_COMM_WORLD, &send_west_req);
+				MPI_Irecv(offset(src, 1, 0, 3*cols+6), 1, rgb_col_type,  west, TAG_W, MPI_COMM_WORLD, &recv_west_req);
 			}
 			if (south != -1) {
-				MPI_Isend(offset(src, rows, 3, 3*cols+6), 1, rgb_row_type, south, 0, MPI_COMM_WORLD, &send_south_req);
-				MPI_Irecv(offset(src, rows+1, 3, 3*cols+6), 1, rgb_row_type, south, 0, MPI_COMM_WORLD, &recv_south_req);
+				MPI_Isend(offset(src, rows, 3, 3*cols+6), 1, rgb_row_type, south, TAG_N, MPI_COMM_WORLD, &send_south_req);
+				MPI_Irecv(offset(src, rows+1, 3, 3*cols+6), 1, rgb_row_type, south, TAG_S, MPI_COMM_WORLD, &recv_south_req);
 			}
 			if (east != -1) {
-				MPI_Isend(offset(src, 1, 3*cols, 3*cols+6), 1, rgb_col_type,  east, 0, MPI_COMM_WORLD, &send_east_req);
-				MPI_Irecv(offset(src, 1, 3*cols+3, 3*cols+6), 1, rgb_col_type,  east, 0, MPI_COMM_WORLD, &recv_east_req);
+				MPI_Isend(offset(src, 1, 3*cols, 3*cols+6), 1, rgb_col_type,  east, TAG_W, MPI_COMM_WORLD, &send_east_req);
+				MPI_Irecv(offset(src, 1, 3*cols+3, 3*cols+6), 1, rgb_col_type,  east, TAG_E, MPI_COMM_WORLD, &recv_east_req);
+			}
+			if (nw != -1) {
+				MPI_Isend(offset(src, 1, 3, 3*cols+6), 3, MPI_BYTE, nw, TAG_SE, MPI_COMM_WORLD, &send_nw_req);
+				MPI_Irecv(offset(src, 0, 0, 3*cols+6), 3, MPI_BYTE, nw, TAG_NW, MPI_COMM_WORLD, &recv_nw_req);
+			}
+			if (ne != -1) {
+				MPI_Isend(offset(src, 1, 3*cols, 3*cols+6), 3, MPI_BYTE, ne, TAG_SW, MPI_COMM_WORLD, &send_ne_req);
+				MPI_Irecv(offset(src, 0, 3*cols+3, 3*cols+6), 3, MPI_BYTE, ne, TAG_NE, MPI_COMM_WORLD, &recv_ne_req);
+			}
+			if (sw != -1) {
+				MPI_Isend(offset(src, rows, 3, 3*cols+6), 3, MPI_BYTE, sw, TAG_NE, MPI_COMM_WORLD, &send_sw_req);
+				MPI_Irecv(offset(src, rows+1, 0, 3*cols+6), 3, MPI_BYTE, sw, TAG_SW, MPI_COMM_WORLD, &recv_sw_req);
+			}
+			if (se != -1) {
+				MPI_Isend(offset(src, rows, 3*cols, 3*cols+6), 3, MPI_BYTE, se, TAG_NW, MPI_COMM_WORLD, &send_se_req);
+				MPI_Irecv(offset(src, rows+1, 3*cols+3, 3*cols+6), 3, MPI_BYTE, se, TAG_SE, MPI_COMM_WORLD, &recv_se_req);
 			}
 		}
 
 		/* Inner Data Convolute */
-		convolute(src, dst, 1, rows, 1, cols, cols, rows, h, imageType);
+		if (rows >= 3 && cols >= 3)
+			convolute(src, dst, 2, rows-1, 2, cols-1, cols, rows, h, imageType);
 
-	    /* Request and compute */
-		if (north != -1) {
-			MPI_Wait(&recv_north_req, &status);
-			
-			convolute(src, dst, 1, 1, 2, cols-1, cols, rows, h, imageType);
+		/* Wait for all receives, then compute boundary */
+		{
+			MPI_Request recv_reqs[8];
+			MPI_Status recv_stats[8];
+			int recv_count = 0;
+			if (north != -1) recv_reqs[recv_count++] = recv_north_req;
+			if (south != -1) recv_reqs[recv_count++] = recv_south_req;
+			if (west != -1)  recv_reqs[recv_count++] = recv_west_req;
+			if (east != -1)  recv_reqs[recv_count++] = recv_east_req;
+			if (nw != -1)    recv_reqs[recv_count++] = recv_nw_req;
+			if (ne != -1)    recv_reqs[recv_count++] = recv_ne_req;
+			if (sw != -1)    recv_reqs[recv_count++] = recv_sw_req;
+			if (se != -1)    recv_reqs[recv_count++] = recv_se_req;
+			MPI_Waitall(recv_count, recv_reqs, recv_stats);
 		}
-		if (west != -1) {
-			MPI_Wait(&recv_west_req, &status);
+
+		if (cols > 0 && rows > 0)
+			convolute(src, dst, 1, 1, 1, cols, cols, rows, h, imageType);
+		if (cols > 0 && rows > 1)
+			convolute(src, dst, rows, rows, 1, cols, cols, rows, h, imageType);
+		if (cols > 0 && rows > 2)
 			convolute(src, dst, 2, rows-1, 1, 1, cols, rows, h, imageType);
-		}
-		if (south != -1) {
-			MPI_Wait(&recv_south_req, &status);
-			convolute(src, dst, rows, rows, 2, cols-1, cols, rows, h, imageType);
-		}
-		if (east != -1) {
-			MPI_Wait(&recv_east_req, &status);
+		if (cols > 1 && rows > 2)
 			convolute(src, dst, 2, rows-1, cols, cols, cols, rows, h, imageType);
-		}
-
-		/* Corner data */
-		if (north != -1 && west != -1)
-			convolute(src, dst, 1, 1, 1, 1, cols, rows, h, imageType);
-		if (west != -1 && south != -1)
-			convolute(src, dst, rows, rows, 1, 1, cols, rows, h, imageType);
-		if (south != -1 && east != -1)
-			convolute(src, dst, rows, rows, cols, cols, cols, rows, h, imageType);
-		if (east != -1 && north != -1)
-			convolute(src, dst, 1, 1, cols, cols, cols, rows, h, imageType);
 
 		/* Wait to have sent all borders */
-		if (north != -1)
-			MPI_Wait(&send_north_req, &status);
-		if (west != -1)
-			MPI_Wait(&send_west_req, &status);
-		if (south != -1)
-			MPI_Wait(&send_south_req, &status);
-		if (east != -1)
-			MPI_Wait(&send_east_req, &status);
+		{
+			MPI_Request send_reqs[8];
+			MPI_Status send_stats[8];
+			int send_count = 0;
+			if (north != -1) send_reqs[send_count++] = send_north_req;
+			if (south != -1) send_reqs[send_count++] = send_south_req;
+			if (west != -1)  send_reqs[send_count++] = send_west_req;
+			if (east != -1)  send_reqs[send_count++] = send_east_req;
+			if (nw != -1)    send_reqs[send_count++] = send_nw_req;
+			if (ne != -1)    send_reqs[send_count++] = send_ne_req;
+			if (sw != -1)    send_reqs[send_count++] = send_sw_req;
+			if (se != -1)    send_reqs[send_count++] = send_se_req;
+			MPI_Waitall(send_count, send_reqs, send_stats);
+		}
 
 		/* swap arrays */
 		tmp = src;
