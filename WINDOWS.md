@@ -57,7 +57,7 @@ OMP_NUM_THREADS=4 mpiexec -n 4 ./mpi_omp/mpi_omp_conv waterfall_grey_1920_2520.r
  
 # Sequential
 gcc -O2 -o seq/seq_conv seq/seq_conv.c
-./mpi/seq_conv waterfall_grey_1920_2520.raw 1920 2520 50 grey
+./seq/seq_conv waterfall_grey_1920_2520.raw 1920 2520 50 grey
 ```
 
 Ví dụ chạy RGB:
