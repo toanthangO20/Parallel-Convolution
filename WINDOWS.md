@@ -108,6 +108,37 @@ Kết quả:
 - CSV: `table1_mpi_times.csv`
 - Log lỗi (nếu có): `table1_mpi_errors.log`
 
+## Benchmark Table 2 (MPI+OpenMP runtimes, loops=20)
+Script: `benchmark_table2_mpi_omp.py` tự tạo dữ liệu nhị phân trong `data/`, chạy tất cả case và in LaTeX table ra stdout.
+
+Chạy trong "MSYS2 MINGW64":
+
+```
+cd /c/Users/Administrator/Downloads/Parallel-Convolution
+
+# build MPI + OpenMP
+mpicc -O3 -fopenmp -o mpi_omp/mpi_omp_conv mpi_omp/mpi_omp_conv.c
+
+# chạy benchmark
+python benchmark_table2_mpi_omp.py --exe ./mpi_omp/mpi_omp_conv --mpiexec mpiexec
+```
+
+Nếu MSYS2 không có python, gọi python Windows từ MSYS2:
+
+```
+/c/Users/Administrator/AppData/Local/Programs/Python/Python312/python.exe \
+  benchmark_table2_mpi_omp.py --exe ./mpi_omp/mpi_omp_conv --mpiexec mpiexec
+```
+
+Kết quả:
+- CSV: `table2_mpi_omp_times.csv`
+- Log lỗi (nếu có): `table2_mpi_omp_errors.log`
+
+## Cài matplotlib để vẽ biểu đồ
+```
+py -m pip install matplotlib
+```
+
 ## Tạo hình Figure 1 (grey 0 vs 20 iterations)
 Script Python: `tools/make_fig1_grey_0_20.py` (cần Pillow).
 
@@ -164,6 +195,32 @@ Script sẽ tạo:
 - `Figures/fig6_mpi_speedup.pdf`
 - `Figures/fig7_mpi_efficiency.png`
 - `Figures/fig7_mpi_efficiency.pdf`
+
+## Tạo hình Figure 8 (MPI+OpenMP runtime comparison)
+Script Python: `plot_fig8_mpi_omp_runtime.py` (cần matplotlib, đọc `table2_mpi_omp_times.csv`).
+
+Ví dụ chạy trong PowerShell:
+```
+& "C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe" plot_fig8_mpi_omp_runtime.py
+```
+
+Script sẽ tạo:
+- `Figures/fig8_mpi_omp_runtime.png`
+- `Figures/fig8_mpi_omp_runtime.pdf`
+
+## Tạo hình Figure 9-10 (MPI+OpenMP speedup & efficiency)
+Script Python: `plot_fig9_fig10_mpi_omp_speedup_efficiency.py` (cần matplotlib, đọc `table2_mpi_omp_times.csv`).
+
+Ví dụ chạy trong PowerShell:
+```
+& "C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe" plot_fig9_fig10_mpi_omp_speedup_efficiency.py
+```
+
+Script sẽ tạo:
+- `Figures/fig9_mpi_omp_speedup.png`
+- `Figures/fig9_mpi_omp_speedup.pdf`
+- `Figures/fig10_mpi_omp_efficiency.png`
+- `Figures/fig10_mpi_omp_efficiency.pdf`
 
 ## Ghi chú về OpenMP
 Số lượng thread có thể điều chỉnh bằng biến môi trường. Ví dụ:
