@@ -139,6 +139,32 @@ Script sẽ tạo:
 - `Figures/rgb_60.png`
 - `Figures/rgb_40_60.png`
 
+## Tạo hình Figure 5 (MPI runtime comparison)
+Script Python: `plot_fig5_mpi_runtime.py` (cần matplotlib).
+
+Ví dụ chạy trong PowerShell:
+```
+& "C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe" plot_fig5_mpi_runtime.py
+```
+
+Script sẽ tạo:
+- `Figures/fig5_mpi_runtime.png`
+- `Figures/fig5_mpi_runtime.pdf`
+
+## Tạo hình Figure 6-7 (MPI speedup & efficiency)
+Script Python: `plot_fig6_fig7_mpi_speedup_efficiency.py` (cần matplotlib).
+
+Ví dụ chạy trong PowerShell:
+```
+& "C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe" plot_fig6_fig7_mpi_speedup_efficiency.py
+```
+
+Script sẽ tạo:
+- `Figures/fig6_mpi_speedup.png`
+- `Figures/fig6_mpi_speedup.pdf`
+- `Figures/fig7_mpi_efficiency.png`
+- `Figures/fig7_mpi_efficiency.pdf`
+
 ## Ghi chú về OpenMP
 Số lượng thread có thể điều chỉnh bằng biến môi trường. Ví dụ:
 
