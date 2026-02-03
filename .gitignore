@@ -5,4 +5,8 @@
 /results/*.xlsx
 /blur_*.raw
 *.exe
+/data/
+/figures/
+/table*_mpi*_times.csv
+/table*_mpi*_errors.log
 
