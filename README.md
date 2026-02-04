@@ -35,3 +35,6 @@ Bài toán: áp dụng convolution 2D (Gaussian blur 3×3) cho ảnh GREY/RGB, l
 - Xem `benchmark_report.md` để có mô tả, bảng số liệu và nhận xét chi tiết.
 
 
+
+## References
+- Code inspiration: https://github.com/jimouris/parallel-convolution
