@@ -8,14 +8,15 @@
 #include "funcs.h"
 
 void Usage(int argc, char **argv, char **image, int *width, int *height, int *loops, color_t *imageType) {
-	if (argc == 6 && !strcmp(argv[5], "grey")) {
+	int has_noout = (argc == 7 && !strcmp(argv[6], "noout"));
+	if ((argc == 6 || has_noout) && !strcmp(argv[5], "grey")) {
 		*image = (char *)malloc((strlen(argv[1])+1) * sizeof(char));
 		strcpy(*image, argv[1]);	
 		*width = atoi(argv[2]);
 		*height = atoi(argv[3]);
 		*loops = atoi(argv[4]);
 		*imageType = GREY;
-	} else if (argc == 6 && !strcmp(argv[5], "rgb")) {
+	} else if ((argc == 6 || has_noout) && !strcmp(argv[5], "rgb")) {
 		*image = (char *)malloc((strlen(argv[1])+1) * sizeof(char));
 		strcpy(*image, argv[1]);	
 		*width = atoi(argv[2]);
@@ -23,7 +24,7 @@ void Usage(int argc, char **argv, char **image, int *width, int *height, int *lo
 		*loops = atoi(argv[4]);
 		*imageType = RGB;
 	} else {
-		fprintf(stderr, "Error Input!\n%s image_name width height loops [rgb/grey].\n", argv[0]);
+		fprintf(stderr, "Error Input!\n%s image_name width height loops [rgb/grey] [noout].\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 }

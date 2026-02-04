@@ -11,13 +11,14 @@ int main(int argc, char** argv) {
 	int fd, width, height, loops;
 	char *image;
 	color_t imageType;
+	int no_output = (argc == 7 && !strcmp(argv[6], "noout"));
 	
 	Usage(argc, argv, &image, &width, &height, &loops, &imageType);	
 
 	/* Host vectors */
 	uint8_t *src = NULL;
 	/* Count time */ 
-	uint64_t c = micro_time(); 
+	uint64_t c = 0; 
 
 	/* Read bytes from picture */
 	if ((fd = open(image, O_RDONLY)) < 0) {
@@ -29,23 +30,26 @@ int main(int argc, char** argv) {
 	read_all(fd, src, bytes);
 	close(fd);
 
+	c = micro_time();
 	gpuConvolute(src, width, height, loops, imageType);
+	c = micro_time() - c;
 
-	/* Create new picture - Write bytes */
-	int fd_out;
-	char *outImage = (char*) malloc((strlen(image) + 9) * sizeof(char));
-	strcpy(outImage, "blur_");
-	strcat(outImage, image);
-	if ((fd_out = open(outImage, O_CREAT | O_WRONLY, 0644)) == -1) {
-		fprintf(stderr, "cannot open-create %s\n", outImage);
-		return EXIT_FAILURE;
+	if (!no_output) {
+		/* Create new picture - Write bytes */
+		int fd_out;
+		char *outImage = (char*) malloc((strlen(image) + 9) * sizeof(char));
+		strcpy(outImage, "blur_");
+		strcat(outImage, image);
+		if ((fd_out = open(outImage, O_CREAT | O_WRONLY, 0644)) == -1) {
+			fprintf(stderr, "cannot open-create %s\n", outImage);
+			return EXIT_FAILURE;
+		}
+		write_all(fd_out, src, bytes);
+		close(fd_out);
+		free(outImage);
 	}
-	write_all(fd_out, src, bytes);
-	close(fd_out);
-	free(outImage);
 
 	/* compute time */
-	c = micro_time() - c;
 	double million = 1000 * 1000;
 	fprintf(stdout, "Execution time: %.3f sec\n", c / million);
 
