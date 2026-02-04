@@ -1,4 +1,12 @@
-﻿# Parallel Convolution — Benchmark Summary
+﻿## Authors
+- Bui Toan Thang (20251192M)
+- Do Hoang Long (20252010M)
+- Le Van Quan (20252099M)
+- Nguyen Thi Ngoc Huyen (20251330M)
+- Nguyen Thi Nhung (20251329M)
+- Tran Tuan Viet (20251328M)
+
+# Parallel Convolution — Benchmark Summary
 
 Bài toán: áp dụng convolution 2D (Gaussian blur 3×3) cho ảnh GREY/RGB, lặp nhiều vòng (`loops`).
 
@@ -25,3 +33,5 @@ Bài toán: áp dụng convolution 2D (Gaussian blur 3×3) cho ảnh GREY/RGB, l
 
 ## Báo cáo đầy đủ
 - Xem `benchmark_report.md` để có mô tả, bảng số liệu và nhận xét chi tiết.
+
+
