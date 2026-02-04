@@ -1,6 +1,6 @@
 # Parallel 2D Convolution Benchmark (MPI / MPI+OpenMP / CUDA)
 
-## 1) Bài toán và vấn đề cần giải quyết (có công thức)
+## 1) Bài toán và vấn đề cần giải quyết
 Ta xét ảnh đầu vào $I$ kích thước $H \times W$ và kernel $3 \times 3$ (Gaussian blur).  
 Mỗi pixel đầu ra là tổ hợp tuyến tính của lân cận $3 \times 3$.
 
