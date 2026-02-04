@@ -9,6 +9,9 @@ import random
 from pathlib import Path
 import shutil
 
+BASE_DIR = Path(__file__).resolve().parent
+REPO_ROOT = BASE_DIR.parent
+
 WIDTH = 1920
 HEIGHTS = [630, 1260, 2520, 5040]
 PS = [1, 2, 4, 9, 16, 25]
@@ -44,60 +47,53 @@ def format_number(val):
     return s.replace(".", ",")
 
 
-def resolve_exe(exe_path: str) -> str:
+def main():
+    parser = argparse.ArgumentParser(description="Benchmark Table 1 MPI runtimes")
+    default_exe = BASE_DIR / ("mpi_conv.exe" if os.name == "nt" else "mpi_conv")
+    parser.add_argument("--exe", default=str(default_exe), help="Path to mpi_conv binary")
+    parser.add_argument("--mpiexec", default="mpiexec", help="mpiexec path")
+    parser.add_argument("--repeats", type=int, default=REPEATS, help="Repeats per case")
+    args = parser.parse_args()
+
+    exe_path = str(args.exe)
+    mpiexec = args.mpiexec
+    repeats = args.repeats
+
+    results = []
+    data_dir = REPO_ROOT / "data"
+    error_log = BASE_DIR / "table1_mpi_errors.log"
+    error_log.write_text("", encoding="ascii")
+
     exe_path_obj = Path(exe_path)
     if not exe_path_obj.exists():
         candidates = []
         if os.name == "nt" and not exe_path.endswith(".exe"):
             candidates.append(Path(exe_path + ".exe"))
-        candidates.append(Path("mpi_omp") / exe_path_obj.name)
+        candidates.append(BASE_DIR / exe_path_obj.name)
+        candidates.append(REPO_ROOT / "mpi" / exe_path_obj.name)
         if os.name == "nt" and not exe_path_obj.name.endswith(".exe"):
-            candidates.append(Path("mpi_omp") / (exe_path_obj.name + ".exe"))
+            candidates.append(BASE_DIR / (exe_path_obj.name + ".exe"))
+            candidates.append(REPO_ROOT / "mpi" / (exe_path_obj.name + ".exe"))
         for cand in candidates:
             if cand.exists():
                 exe_path_obj = cand
                 break
         if not exe_path_obj.exists():
-            print(f"WARNING: mpi_omp binary not found at: {exe_path}", file=sys.stderr)
-    return str(exe_path_obj.resolve())
+            print(f"WARNING: mpi binary not found at: {exe_path}", file=sys.stderr)
+    exe_path = str(exe_path_obj.resolve())
 
-
-def resolve_mpiexec(mpiexec: str) -> str:
     mpiexec_path = shutil.which(mpiexec) if Path(mpiexec).name == mpiexec else None
     if mpiexec_path:
-        return mpiexec_path
-    if not Path(mpiexec).exists():
+        mpiexec = mpiexec_path
+    elif not Path(mpiexec).exists():
         print(f"WARNING: mpiexec not found: {mpiexec}", file=sys.stderr)
-    return mpiexec
-
-
-def main():
-    parser = argparse.ArgumentParser(description="Benchmark Table 2 MPI+OpenMP runtimes")
-    default_exe = "./mpi_omp_conv.exe" if os.name == "nt" else "./mpi_omp_conv"
-    parser.add_argument("--exe", default=default_exe, help="Path to mpi_omp_conv binary")
-    parser.add_argument("--mpiexec", default="mpiexec", help="mpiexec path")
-    parser.add_argument("--repeats", type=int, default=REPEATS, help="Repeats per case")
-    parser.add_argument("--loops", type=int, default=LOOPS, help="Iterations per run")
-    parser.add_argument("--omp-threads", type=int, default=None, help="Set OMP_NUM_THREADS for each run")
-    args = parser.parse_args()
-
-    exe_path = resolve_exe(args.exe)
-    mpiexec = resolve_mpiexec(args.mpiexec)
-    repeats = args.repeats
-    loops = args.loops
-
-    env_base = os.environ.copy()
-    if args.omp_threads:
-        env_base["OMP_NUM_THREADS"] = str(args.omp_threads)
-
-    results = []
-    data_dir = Path("data")
-    error_log = Path("table2_mpi_omp_errors.log")
-    error_log.write_text("", encoding="ascii")
 
     for image_type in IMAGE_TYPES:
         for height in HEIGHTS:
-            size = WIDTH * height if image_type == "grey" else WIDTH * height * 3
+            if image_type == "grey":
+                size = WIDTH * height
+            else:
+                size = WIDTH * height * 3
             filename = f"{image_type}_{WIDTH}x{height}.bin"
             data_path = data_dir / filename
             generate_data_file(data_path, size)
@@ -105,9 +101,9 @@ def main():
             for p in PS:
                 runtimes = []
                 for _ in range(repeats):
-                    cmd = [mpiexec, "-n", str(p), exe_path, str(data_path), str(WIDTH), str(height), str(loops), image_type]
+                    cmd = [mpiexec, "-n", str(p), exe_path, str(data_path), str(WIDTH), str(height), str(LOOPS), image_type]
                     try:
-                        proc = subprocess.run(cmd, capture_output=True, text=True, check=False, env=env_base)
+                        proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
                     except Exception as e:
                         error_log.write_text(
                             error_log.read_text(encoding="ascii")
@@ -145,16 +141,20 @@ def main():
                         runtimes.append(rt)
 
                 vals = [v for v in runtimes if v is not None]
-                median_rt = statistics.median(vals) if vals else None
+                if vals:
+                    median_rt = statistics.median(vals)
+                else:
+                    median_rt = None
                 results.append((image_type, WIDTH, height, p, median_rt))
 
-    csv_path = Path("table2_mpi_omp_times.csv")
+    csv_path = BASE_DIR / "table1_mpi_times.csv"
     with csv_path.open("w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["image_type", "width", "height", "p", "runtime_seconds"])
         for row in results:
             writer.writerow(row)
 
+    # Build LaTeX table
     def size_label(h):
         if h == 630:
             return "(x/4)"
@@ -185,6 +185,7 @@ def main():
         lines.append("\\hline")
 
     lines.append("\\end{tabular}")
+
     print("\n".join(lines))
 
 

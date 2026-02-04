@@ -6,6 +6,8 @@ import sys
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
+BASE_DIR = Path(__file__).resolve().parent
+
 WIDTH = 1920
 HEIGHTS = [630, 1260, 2520, 5040]
 PS = [1, 2, 4, 9, 16, 25]
@@ -41,9 +43,9 @@ def load_times(csv_path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Plot MPI runtime comparison (Fig. 5)")
-    parser.add_argument("--csv", default="table1_mpi_times.csv", help="CSV file from benchmark_table1_mpi.py")
-    parser.add_argument("--outdir", default="Figures", help="Output directory")
+    parser = argparse.ArgumentParser(description="Plot MPI runtime comparison")
+    parser.add_argument("--csv", default=str(BASE_DIR / "table1_mpi_times.csv"), help="CSV file from benchmark_table1_mpi.py")
+    parser.add_argument("--outdir", default=str(BASE_DIR), help="Output directory")
     args = parser.parse_args()
 
     data = load_times(args.csv)
@@ -105,8 +107,8 @@ def main():
     out_dir = Path(args.outdir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    png_path = out_dir / "fig5_mpi_runtime.png"
-    pdf_path = out_dir / "fig5_mpi_runtime.pdf"
+    png_path = out_dir / "mpi_runtime.png"
+    pdf_path = out_dir / "mpi_runtime.pdf"
 
     fig.savefig(png_path, dpi=300, bbox_inches="tight")
     fig.savefig(pdf_path, bbox_inches="tight")

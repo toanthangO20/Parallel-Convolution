@@ -6,6 +6,8 @@ import sys
 import matplotlib.pyplot as plt
 
 
+BASE_DIR = Path(__file__).resolve().parent
+
 INCLUDE_P1 = False
 
 
@@ -92,9 +94,9 @@ def plot_line(x, y, title, y_label, y_lim, out_png, out_pdf):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Plot MPI speedup and efficiency (Fig. 6-7)")
-    parser.add_argument("--csv", default="table1_mpi_times.csv", help="CSV file from benchmark_table1_mpi.py")
-    parser.add_argument("--outdir", default="Figures", help="Output directory")
+    parser = argparse.ArgumentParser(description="Plot MPI speedup and efficiency")
+    parser.add_argument("--csv", default=str(BASE_DIR / "table1_mpi_times.csv"), help="CSV file from benchmark_table1_mpi.py")
+    parser.add_argument("--outdir", default=str(BASE_DIR), help="Output directory")
     parser.add_argument("--include-p1", action="store_true", help="Include p=1 on the x-axis")
     args = parser.parse_args()
 
@@ -118,10 +120,10 @@ def main():
     out_dir = Path(args.outdir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    fig6_png = out_dir / "fig6_mpi_speedup.png"
-    fig6_pdf = out_dir / "fig6_mpi_speedup.pdf"
-    fig7_png = out_dir / "fig7_mpi_efficiency.png"
-    fig7_pdf = out_dir / "fig7_mpi_efficiency.pdf"
+    speedup_png = out_dir / "mpi_speedup.png"
+    speedup_pdf = out_dir / "mpi_speedup.pdf"
+    efficiency_png = out_dir / "mpi_efficiency.png"
+    efficiency_pdf = out_dir / "mpi_efficiency.pdf"
 
     plot_line(
         x,
@@ -129,8 +131,8 @@ def main():
         "Grey 1920 * 2520",
         "Speedup",
         (0, 25),
-        fig6_png,
-        fig6_pdf,
+        speedup_png,
+        speedup_pdf,
     )
 
     plot_line(
@@ -139,14 +141,14 @@ def main():
         "Grey 1920 * 2520",
         "Efficiency",
         (0, 1.2),
-        fig7_png,
-        fig7_pdf,
+        efficiency_png,
+        efficiency_pdf,
     )
 
-    print(str(fig6_png))
-    print(str(fig6_pdf))
-    print(str(fig7_png))
-    print(str(fig7_pdf))
+    print(str(speedup_png))
+    print(str(speedup_pdf))
+    print(str(efficiency_png))
+    print(str(efficiency_pdf))
 
 
 if __name__ == "__main__":

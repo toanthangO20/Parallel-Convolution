@@ -6,6 +6,8 @@ import sys
 import matplotlib.pyplot as plt
 
 
+BASE_DIR = Path(__file__).resolve().parent
+
 INCLUDE_P1 = False
 
 
@@ -93,8 +95,8 @@ def plot_line(x, y, title, y_label, y_lim, out_png, out_pdf):
 
 def main():
     parser = argparse.ArgumentParser(description="Plot MPI+OpenMP speedup and efficiency")
-    parser.add_argument("--csv", default="table2_mpi_omp_times.csv", help="CSV file from benchmark_table2_mpi_omp.py")
-    parser.add_argument("--outdir", default="Figures", help="Output directory")
+    parser.add_argument("--csv", default=str(BASE_DIR / "table2_mpi_omp_times.csv"), help="CSV file from benchmark_table2_mpi_omp.py")
+    parser.add_argument("--outdir", default=str(BASE_DIR), help="Output directory")
     parser.add_argument("--include-p1", action="store_true", help="Include p=1 on the x-axis")
     args = parser.parse_args()
 
@@ -115,10 +117,10 @@ def main():
     out_dir = Path(args.outdir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    fig9_png = out_dir / "fig9_mpi_omp_speedup.png"
-    fig9_pdf = out_dir / "fig9_mpi_omp_speedup.pdf"
-    fig10_png = out_dir / "fig10_mpi_omp_efficiency.png"
-    fig10_pdf = out_dir / "fig10_mpi_omp_efficiency.pdf"
+    speedup_png = out_dir / "mpi_omp_speedup.png"
+    speedup_pdf = out_dir / "mpi_omp_speedup.pdf"
+    efficiency_png = out_dir / "mpi_omp_efficiency.png"
+    efficiency_pdf = out_dir / "mpi_omp_efficiency.pdf"
 
     plot_line(
         x,
@@ -126,8 +128,8 @@ def main():
         "Grey 1920 * 2520",
         "Speedup",
         (0, 25),
-        fig9_png,
-        fig9_pdf,
+        speedup_png,
+        speedup_pdf,
     )
 
     plot_line(
@@ -136,14 +138,14 @@ def main():
         "Grey 1920 * 2520",
         "Efficiency",
         (0, 1.2),
-        fig10_png,
-        fig10_pdf,
+        efficiency_png,
+        efficiency_pdf,
     )
 
-    print(str(fig9_png))
-    print(str(fig9_pdf))
-    print(str(fig10_png))
-    print(str(fig10_pdf))
+    print(str(speedup_png))
+    print(str(speedup_pdf))
+    print(str(efficiency_png))
+    print(str(efficiency_pdf))
 
 
 if __name__ == "__main__":

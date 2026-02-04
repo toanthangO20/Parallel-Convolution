@@ -83,7 +83,7 @@ bash scripts/benchmark.sh 5 env OMP_NUM_THREADS=4 mpiexec -n 4 ./mpi_omp/mpi_omp
 ```
 
 ## Benchmark Table 1 (MPI runtimes, loops=20)
-Script: `benchmark_table1_mpi.py` tự tạo dữ liệu nhị phân trong `data/`, chạy tất cả case và in LaTeX table ra stdout.
+Script: `mpi/benchmark_table1_mpi.py` tự tạo dữ liệu nhị phân trong `data/`, chạy tất cả case và in LaTeX table ra stdout.
 
 Chạy trong "MSYS2 MINGW64":
 
@@ -94,22 +94,22 @@ cd /c/Users/Administrator/Downloads/Parallel-Convolution
 mpicc -O3 -o mpi/mpi_conv mpi/mpi_conv.c
 
 # chạy benchmark
-python benchmark_table1_mpi.py --exe ./mpi/mpi_conv --mpiexec mpiexec
+python mpi/benchmark_table1_mpi.py --exe ./mpi/mpi_conv --mpiexec mpiexec
 ```
 
 Nếu MSYS2 không có python, gọi python Windows từ MSYS2:
 
 ```
 /c/Users/Administrator/AppData/Local/Programs/Python/Python312/python.exe \
-  benchmark_table1_mpi.py --exe ./mpi/mpi_conv --mpiexec mpiexec
+  mpi/benchmark_table1_mpi.py --exe ./mpi/mpi_conv --mpiexec mpiexec
 ```
 
 Kết quả:
-- CSV: `table1_mpi_times.csv`
-- Log lỗi (nếu có): `table1_mpi_errors.log`
+- CSV: `mpi/table1_mpi_times.csv`
+- Log lỗi (nếu có): `mpi/table1_mpi_errors.log`
 
 ## Benchmark Table 2 (MPI+OpenMP runtimes, loops=20)
-Script: `benchmark_table2_mpi_omp.py` tự tạo dữ liệu nhị phân trong `data/`, chạy tất cả case và in LaTeX table ra stdout.
+Script: `mpi_omp/benchmark_table2_mpi_omp.py` tự tạo dữ liệu nhị phân trong `data/`, chạy tất cả case và in LaTeX table ra stdout.
 
 Chạy trong "MSYS2 MINGW64":
 
@@ -120,19 +120,19 @@ cd /c/Users/Administrator/Downloads/Parallel-Convolution
 mpicc -O3 -fopenmp -o mpi_omp/mpi_omp_conv mpi_omp/mpi_omp_conv.c
 
 # chạy benchmark
-python benchmark_table2_mpi_omp.py --exe ./mpi_omp/mpi_omp_conv --mpiexec mpiexec
+python mpi_omp/benchmark_table2_mpi_omp.py --exe ./mpi_omp/mpi_omp_conv --mpiexec mpiexec
 ```
 
 Nếu MSYS2 không có python, gọi python Windows từ MSYS2:
 
 ```
 /c/Users/Administrator/AppData/Local/Programs/Python/Python312/python.exe \
-  benchmark_table2_mpi_omp.py --exe ./mpi_omp/mpi_omp_conv --mpiexec mpiexec
+  mpi_omp/benchmark_table2_mpi_omp.py --exe ./mpi_omp/mpi_omp_conv --mpiexec mpiexec
 ```
 
 Kết quả:
-- CSV: `table2_mpi_omp_times.csv`
-- Log lỗi (nếu có): `table2_mpi_omp_errors.log`
+- CSV: `mpi_omp/table2_mpi_omp_times.csv`
+- Log lỗi (nếu có): `mpi_omp/table2_mpi_omp_errors.log`
 
 ## Cài matplotlib để vẽ biểu đồ
 ```
@@ -170,57 +170,57 @@ Script sẽ tạo:
 - `Figures/rgb_60.png`
 - `Figures/rgb_40_60.png`
 
-## Tạo hình Figure 5 (MPI runtime comparison)
-Script Python: `plot_fig5_mpi_runtime.py` (cần matplotlib).
+## Tạo hình MPI runtime
+Script Python: `mpi/plot_mpi_runtime.py` (cần matplotlib).
 
 Ví dụ chạy trong PowerShell:
 ```
-& "C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe" plot_fig5_mpi_runtime.py
+& "C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe" mpi\plot_mpi_runtime.py
 ```
 
 Script sẽ tạo:
-- `Figures/fig5_mpi_runtime.png`
-- `Figures/fig5_mpi_runtime.pdf`
+- `mpi/mpi_runtime.png`
+- `mpi/mpi_runtime.pdf`
 
-## Tạo hình Figure 6-7 (MPI speedup & efficiency)
-Script Python: `plot_fig6_fig7_mpi_speedup_efficiency.py` (cần matplotlib).
+## Tạo hình MPI speedup & efficiency
+Script Python: `mpi/plot_mpi_speedup_efficiency.py` (cần matplotlib).
 
 Ví dụ chạy trong PowerShell:
 ```
-& "C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe" plot_fig6_fig7_mpi_speedup_efficiency.py
+& "C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe" mpi\plot_mpi_speedup_efficiency.py
 ```
 
 Script sẽ tạo:
-- `Figures/fig6_mpi_speedup.png`
-- `Figures/fig6_mpi_speedup.pdf`
-- `Figures/fig7_mpi_efficiency.png`
-- `Figures/fig7_mpi_efficiency.pdf`
+- `mpi/mpi_speedup.png`
+- `mpi/mpi_speedup.pdf`
+- `mpi/mpi_efficiency.png`
+- `mpi/mpi_efficiency.pdf`
 
-## Tạo hình Figure 8 (MPI+OpenMP runtime comparison)
-Script Python: `plot_fig8_mpi_omp_runtime.py` (cần matplotlib, đọc `table2_mpi_omp_times.csv`).
+## Tạo hình MPI+OpenMP runtime
+Script Python: `mpi_omp/plot_mpi_omp_runtime.py` (cần matplotlib, đọc `mpi_omp/table2_mpi_omp_times.csv`).
 
 Ví dụ chạy trong PowerShell:
 ```
-& "C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe" plot_fig8_mpi_omp_runtime.py
+& "C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe" mpi_omp\plot_mpi_omp_runtime.py
 ```
 
 Script sẽ tạo:
-- `Figures/fig8_mpi_omp_runtime.png`
-- `Figures/fig8_mpi_omp_runtime.pdf`
+- `mpi_omp/mpi_omp_runtime.png`
+- `mpi_omp/mpi_omp_runtime.pdf`
 
-## Tạo hình Figure 9-10 (MPI+OpenMP speedup & efficiency)
-Script Python: `plot_fig9_fig10_mpi_omp_speedup_efficiency.py` (cần matplotlib, đọc `table2_mpi_omp_times.csv`).
+## Tạo hình MPI+OpenMP speedup & efficiency
+Script Python: `mpi_omp/plot_mpi_omp_speedup_efficiency.py` (cần matplotlib, đọc `mpi_omp/table2_mpi_omp_times.csv`).
 
 Ví dụ chạy trong PowerShell:
 ```
-& "C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe" plot_fig9_fig10_mpi_omp_speedup_efficiency.py
+& "C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe" mpi_omp\plot_mpi_omp_speedup_efficiency.py
 ```
 
 Script sẽ tạo:
-- `Figures/fig9_mpi_omp_speedup.png`
-- `Figures/fig9_mpi_omp_speedup.pdf`
-- `Figures/fig10_mpi_omp_efficiency.png`
-- `Figures/fig10_mpi_omp_efficiency.pdf`
+- `mpi_omp/mpi_omp_speedup.png`
+- `mpi_omp/mpi_omp_speedup.pdf`
+- `mpi_omp/mpi_omp_efficiency.png`
+- `mpi_omp/mpi_omp_efficiency.pdf`
 
 ## Ghi chú về OpenMP
 Số lượng thread có thể điều chỉnh bằng biến môi trường. Ví dụ:
