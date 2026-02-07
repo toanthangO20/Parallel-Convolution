@@ -18,6 +18,10 @@ MSYS2 MINGW64:
 cd /c/path/to/Parallel-Convolution
 ```
 
+Lưu ý quan trọng về đường dẫn:
+- Trong `MSYS2 MINGW64` / `Git Bash`, luôn dùng dấu `/` trong path (ví dụ: `tools/make_fig4_rgb_40_60.py`, `./seq/seq_conv.exe`).
+- Trong `PowerShell`, có thể dùng `\` (ví dụ: `tools\make_fig4_rgb_40_60.py`).
+
 ## 1) Cài MSYS2
 1. Tải installer từ: https://www.msys2.org/
 2. Cài vào đường dẫn ASCII (ví dụ: `C:\msys64`)
@@ -151,7 +155,12 @@ Script: `tools/make_fig1_grey_0_20.py` (cần Pillow).
 
 PowerShell:
 ```powershell
-py -3 tools\make_fig1_grey_0_20.py --input waterfall_grey_1920_2520.raw --width 1920 --height 2520 --exe .\seq\seq_conv --loops 20 --outdir figures
+py -3 tools\make_fig1_grey_0_20.py --input waterfall_grey_1920_2520.raw --width 1920 --height 2520 --exe .\seq\seq_conv.exe --loops 20 --outdir figures
+```
+
+MSYS2 MINGW64 / Git Bash:
+```bash
+py -3 tools/make_fig1_grey_0_20.py --input waterfall_grey_1920_2520.raw --width 1920 --height 2520 --exe ./seq/seq_conv.exe --loops 20 --outdir figures
 ```
 
 Kết quả:
@@ -159,12 +168,53 @@ Kết quả:
 - `figures/grey_20.png`
 - `figures/grey_0_20.png` (ảnh ghép tùy chọn)
 
-## 11) Tạo hình RGB (40 vs 60 iterations)
+## 11) Tạo hình Figure 2 (grey 40 vs 60 iterations)
+Script: `tools/make_fig2_grey_40_60.py` (cần Pillow).
+
+PowerShell:
+```powershell
+py -3 tools\make_fig2_grey_40_60.py --input waterfall_grey_1920_2520.raw --width 1920 --height 2520 --exe .\seq\seq_conv.exe --loops 40 60 --outdir figures
+```
+
+MSYS2 MINGW64 / Git Bash:
+```bash
+py -3 tools/make_fig2_grey_40_60.py --input waterfall_grey_1920_2520.raw --width 1920 --height 2520 --exe ./seq/seq_conv.exe --loops 40 60 --outdir figures
+```
+
+Kết quả:
+- `figures/grey_40.png`
+- `figures/grey_60.png`
+- `figures/grey_40_60.png`
+
+## 12) Tạo hình Figure 3 (RGB 0 vs 20 iterations)
+Script: `tools/make_fig3_rgb_0_20.py` (cần Pillow).
+
+PowerShell:
+```powershell
+py -3 tools\make_fig3_rgb_0_20.py --input waterfall_1920_2520.raw --width 1920 --height 2520 --exe .\seq\seq_conv.exe --loops 20 --outdir figures
+```
+
+MSYS2 MINGW64 / Git Bash:
+```bash
+py -3 tools/make_fig3_rgb_0_20.py --input waterfall_1920_2520.raw --width 1920 --height 2520 --exe ./seq/seq_conv.exe --loops 20 --outdir figures
+```
+
+Kết quả:
+- `figures/rgb_0.png`
+- `figures/rgb_20.png`
+- `figures/rgb_0_20.png`
+
+## 13) Tạo hình Figure 4 (RGB 40 vs 60 iterations)
 Script: `tools/make_fig4_rgb_40_60.py` (cần Pillow).
 
 PowerShell:
 ```powershell
-py -3 tools\make_fig4_rgb_40_60.py --input waterfall_1920_2520.raw --width 1920 --height 2520 --exe .\seq\seq_conv --loops 40 60 --outdir figures
+py -3 tools\make_fig4_rgb_40_60.py --input waterfall_1920_2520.raw --width 1920 --height 2520 --exe .\seq\seq_conv.exe --loops 40 60 --outdir figures
+```
+
+MSYS2 MINGW64 / Git Bash:
+```bash
+py -3 tools/make_fig4_rgb_40_60.py --input waterfall_1920_2520.raw --width 1920 --height 2520 --exe ./seq/seq_conv.exe --loops 40 60 --outdir figures
 ```
 
 Kết quả:
@@ -172,7 +222,7 @@ Kết quả:
 - `figures/rgb_60.png`
 - `figures/rgb_40_60.png`
 
-## 12) Tạo hình MPI runtime
+## 14) Tạo hình MPI runtime
 Script: `mpi/plot_mpi_runtime.py` (cần matplotlib).
 
 PowerShell:
@@ -180,16 +230,26 @@ PowerShell:
 py -3 mpi\plot_mpi_runtime.py
 ```
 
+MSYS2 MINGW64 / Git Bash:
+```bash
+py -3 mpi/plot_mpi_runtime.py
+```
+
 Kết quả:
 - `mpi/mpi_runtime.png`
 - `mpi/mpi_runtime.pdf`
 
-## 13) Tạo hình MPI speedup & efficiency
+## 15) Tạo hình MPI speedup & efficiency
 Script: `mpi/plot_mpi_speedup_efficiency.py` (cần matplotlib).
 
 PowerShell:
 ```powershell
 py -3 mpi\plot_mpi_speedup_efficiency.py
+```
+
+MSYS2 MINGW64 / Git Bash:
+```bash
+py -3 mpi/plot_mpi_speedup_efficiency.py
 ```
 
 Kết quả:
@@ -198,7 +258,7 @@ Kết quả:
 - `mpi/mpi_efficiency.png`
 - `mpi/mpi_efficiency.pdf`
 
-## 14) Tạo hình MPI+OpenMP runtime
+## 16) Tạo hình MPI+OpenMP runtime
 Script: `mpi_omp/plot_mpi_omp_runtime.py` (cần matplotlib, đọc `mpi_omp/table2_mpi_omp_times.csv`).
 
 PowerShell:
@@ -206,16 +266,26 @@ PowerShell:
 py -3 mpi_omp\plot_mpi_omp_runtime.py
 ```
 
+MSYS2 MINGW64 / Git Bash:
+```bash
+py -3 mpi_omp/plot_mpi_omp_runtime.py
+```
+
 Kết quả:
 - `mpi_omp/mpi_omp_runtime.png`
 - `mpi_omp/mpi_omp_runtime.pdf`
 
-## 15) Tạo hình MPI+OpenMP speedup & efficiency
+## 17) Tạo hình MPI+OpenMP speedup & efficiency
 Script: `mpi_omp/plot_mpi_omp_speedup_efficiency.py` (cần matplotlib, đọc `mpi_omp/table2_mpi_omp_times.csv`).
 
 PowerShell:
 ```powershell
 py -3 mpi_omp\plot_mpi_omp_speedup_efficiency.py
+```
+
+MSYS2 MINGW64 / Git Bash:
+```bash
+py -3 mpi_omp/plot_mpi_omp_speedup_efficiency.py
 ```
 
 Kết quả:
@@ -224,7 +294,7 @@ Kết quả:
 - `mpi_omp/mpi_omp_efficiency.png`
 - `mpi_omp/mpi_omp_efficiency.pdf`
 
-## 16) Ghi chú về OpenMP
+## 18) Ghi chú về OpenMP
 Bạn có thể đặt số lượng thread bằng biến môi trường.
 
 MSYS2:
@@ -237,22 +307,26 @@ PowerShell:
 $env:OMP_NUM_THREADS = 4
 ```
 
-## 17) Lỗi thường gặp
+## 19) Lỗi thường gặp
 - `mpicc: command not found`:
   - Bạn đang ở Git Bash hoặc MSYS2 MSYS, hãy mở "MSYS2 MINGW64".
   - Kiểm tra: `which mpicc`.
 - `mpiexec: command not found`:
   - Chưa cài MS-MPI Runtime hoặc PATH chưa đúng.
+- `python.exe: can't open file ... toolsmake_fig4_rgb_40_60.py`:
+  - Bạn đang chạy trong `MINGW64/Git Bash` nhưng dùng dấu `\`.
+  - Dùng lại lệnh với dấu `/`:
+    `py -3 tools/make_fig4_rgb_40_60.py --input waterfall_1920_2520.raw --width 1920 --height 2520 --exe ./seq/seq_conv.exe --loops 40 60 --outdir figures`
 - `Cannot divide to processes`:
   - Thay đổi `-n` sao cho width và height chia hết cho lưới process.
 - `Error Input!`:
   - Dùng cú pháp: `<exe> <image> <width> <height> <loops> <rgb|grey>`.
 
-## 18) CUDA trên Windows (tùy chọn)
+## 20) CUDA trên Windows (tùy chọn)
 CUDA code trong thư mục `cuda` dùng header POSIX và Makefile kiểu Unix, nên không build trực tiếp trên Windows native.
 Nếu cần chạy CUDA, nên dùng WSL2 (Ubuntu) hoặc sửa code/Makefile để build bằng MSVC + nvcc.
 
-## 19) Chuyển .raw/.pgm/.ppm sang PNG
+## 21) Chuyển .raw/.pgm/.ppm sang PNG
 Sau khi dùng `convert_raw.py` để tạo `.pgm` (grey) hoặc `.ppm` (rgb), bạn có thể đổi sang PNG bằng ImageMagick.
 
 1. Cài ImageMagick cho Windows: https://imagemagick.org/
@@ -268,7 +342,7 @@ magick -size 1920x2520 -depth 8 gray:waterfall_grey_1920_2520.raw waterfall_grey
 magick -size 1920x2520 -depth 8 rgb:waterfall_1920_2520.raw waterfall_1920_2520.png
 ```
 
-## 20) Tài liệu tham khảo
+## 22) Tài liệu tham khảo
 - MSYS2 Updating: https://www.msys2.org/docs/updating/
 - MSYS2 package `mingw-w64-x86_64-msmpi`: https://packages.msys2.org/package/mingw-w64-x86_64-msmpi
 - Microsoft MPI: https://learn.microsoft.com/en-us/message-passing-interface/microsoft-mpi
